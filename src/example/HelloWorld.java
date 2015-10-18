@@ -2,10 +2,10 @@ package example;
 import com.sun.net.httpserver.HttpServer;
 import com.sun.jersey.api.container.httpserver.HttpServerFactory;
 import java.io.IOException;
+import java.util.ArrayList;
 
-import javax.ws.rs.GET;
-import javax.ws.rs.Produces;
-import javax.ws.rs.Path;
+import javax.ws.rs.*;
+import javax.ws.rs.core.Response;
 
 /**
  * Created by ADI on 16-10-2015.
@@ -13,25 +13,47 @@ import javax.ws.rs.Path;
 // The Java class will be hosted at the URI path "/helloworld"
 @Path("/helloworld")
 public class HelloWorld {
-    // The Java method will process HTTP GET requests
-    @GET
-    // The Java method will produce content identified by the MIME Media type "text/plain"
-    @Produces("text/plain")
-    public String getClichedMessage() {
-        // Return some cliched textual content
-        return "Hello World";
-    }
+
+    private User user;
+    private ArrayList<User> users;
 
     @Path("/user1")
     @GET
     @Produces("application/json")
     public String getUser(){
 
-        User user = new User(1, "Simon", "Adams", "Adi", "12345");
+        user = new User(1, "Simon", "Adams", "Adi", "12345");
+
+        users = new ArrayList<>();
+        users.add(user);
 
         System.out.println(user.toJson());
 
         return user.toJson();
+    }
+
+    @Path("/loginauthorization/{username}")
+    @GET
+    @Produces("application/json")
+    public String authorizeLogin(@PathParam("username") String username){
+
+        user = new User(1, "Simon", "Adams", "Adi", "12345");
+
+        users = new ArrayList<>();
+        users.add(user);
+
+       User userAsJson = null;
+
+        for (int i = 0; i < users.size(); i++) {
+
+            if(username.equals(users.get(i).getUsername())){
+
+                userAsJson = users.get(i);
+            }
+
+        }
+        System.out.println(userAsJson);
+        return userAsJson.toJson();
     }
 
 
