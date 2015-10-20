@@ -19,71 +19,45 @@ public class HelloWorld {
     private SQLWrapper sqlWrapper = new SQLWrapper();
     private ArrayList<User> users = sqlWrapper.getUsers();
 
-    @Path("/user1")
-    @GET
-    @Produces("application/json")
-    public String getUser(){
-
-        user = users.get(0);
-
-        return user.toJson();
-    }
-
     //Case sensitive for the username!
-    @Path("/loginauthorization/{username}")
-    @GET
+    @Path("/loginauthorization/")
+    @POST
     @Produces("application/json")
-    public String authorizeLogin(@PathParam("username") String username){
+    public Response authorizeLogin(String data){
 
-        User userAsJson = null;
 
-        for (int i = 0; i < users.size(); i++) {
+        User temp = new Gson().fromJson(new Security().decrypt(data, "1"), User.class);
+        User userToAuthenticate = sqlWrapper.authenticatedUser(temp.getUsername(), temp.getPassword());
 
-            if(username.equals(users.get(i).getUsername())){
 
-                userAsJson = users.get(i);
-            }
-
-        }
         //System.out.println(userAsJson);
-        return userAsJson.toJson();
+        //return Response.status(200).entity("\"success\" : \"true\"").build();
+        return Response.status(200).entity(userToAuthenticate.toEncryptedJson()).build();
     }
 
-//    @Path("/update/{username}")
-//    @PUT
-//    @Produces("application/json")
-//    public Response updateUser(@PathParam("username") String username){
-//
-//        User updatedUser = null;
-//
-//        for(User u : users) {
-//            if (username.equals(u.getUsername())){
-//
-//                updatedUser = u;
-//                updatedUser.setPassword("1234");
-//                break;
-//            }
-//        }
-//        sqlWrapper.updateUser(updatedUser);
-//
-//        return Response.status(200).entity("User updated").build();
-//    }
-
-    @Path("/updateuser/")
+    @Path("/createuser/")
     @POST
+    @Produces("application/json")
+    public Response createUser(String data){
+
+
+        User userToCreate = new Gson().fromJson(new Security().decrypt(data, "1"), User.class);
+        sqlWrapper.createUser(userToCreate);
+
+
+        //System.out.println(userAsJson);
+        //return Response.status(200).entity("\"success\" : \"true\"").build();
+        return Response.status(200).entity("user was created").build();
+    }
+
+    @Path("/updateuser")
+    @PUT
     @Consumes("application/json")
     public Response updateUser(String jsonUser){
 
         String decryptedUser = new Security().decrypt(jsonUser, "1");
         User updatedUser = new Gson().fromJson(decryptedUser, User.class);
 
-        for(User u : users) {
-            if (updatedUser.getUsername().equals(u.getUsername())){
-
-                updatedUser = u;
-                break;
-            }
-        }
         sqlWrapper.updateUser(updatedUser);
 
         return Response.status(200).entity("User was updated").build();

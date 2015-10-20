@@ -121,6 +121,12 @@ public class User {
 
     public String toJson() {
 
+        return String.format("{ \"id\" : %d, \"username\" : \"%s\", \"firstName\" : \"%s\", " +
+                "\"lastName\" : \"%s\", \"password\" : \"%s\" }", id, username, firstName, lastName, password);
+    }
+
+    public String toEncryptedJson() {
+
         String s = String.format("{ \"id\" : %d, \"username\" : \"%s\", \"firstName\" : \"%s\", " +
                 "\"lastName\" : \"%s\", \"password\" : \"%s\" }", id, username, firstName, lastName, password);
 

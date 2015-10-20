@@ -23,13 +23,40 @@ public class SQLWrapper {
 
     }
 
-    public User getUser(int id){
+    public User authenticatedUser(String username, String password){
 
-        PreparedStatement ps = null;
         User user = null;
 
         try {
-            ps = connection.prepareStatement(sqlBuilder.getSqlUser());
+            PreparedStatement ps = connection.prepareStatement(sqlBuilder.authenticateSqlUser());
+
+            ps.setString(1, username);
+
+            resultSet = ps.executeQuery();
+
+            if(resultSet.first()){
+
+                if(password.equals(resultSet.getString("password"))) {
+
+                    user = new User(resultSet.getInt(1), resultSet.getString(2), resultSet.getString(3),
+                            resultSet.getString(4), resultSet.getString(5), resultSet.getString(6),
+                            resultSet.getDate(7), resultSet.getString(8), resultSet.getString(9)
+                    );
+                }            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return user;
+    }
+
+    public User getUser(int id){
+
+        User user = null;
+
+        try {
+            PreparedStatement ps = connection.prepareStatement(sqlBuilder.getSqlUser());
 
             ps.setInt(1, id);
 
@@ -101,6 +128,27 @@ public class SQLWrapper {
         return result;
     }
 
+    public int createUser(User user) {
+
+        int result = -1;
+
+        try {
+            PreparedStatement ps = connection.prepareStatement(sqlBuilder.createSqlUser());
+
+            ps.setString(1, user.getFirstName());
+            ps.setString(2, user.getLastName());
+            ps.setString(3, user.getEmail());
+            ps.setString(4, user.getUsername());
+            ps.setString(5, user.getPassword());
+
+
+            result = ps.executeUpdate();
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return result;
+    }
 }
 
 

@@ -36,6 +36,11 @@ public class SQLBuilder {
         return "SELECT * FROM users WHERE id = ?";
     }
 
+    public String authenticateSqlUser(){
+
+        return "SELECT * FROM users WHERE username = ?";
+    }
+
     public String updateSqlUser(){
 
         return "UPDATE users SET first_name = ?, last_name = ?, email = ?, password = ?, " +
@@ -45,5 +50,10 @@ public class SQLBuilder {
     public Connection getConnection() {
 
         return connection;
+    }
+
+    public String createSqlUser() {
+
+        return "INSERT INTO users (first_name, last_name, email, username, password) VALUES(?, ?, ?, ?, ?)";
     }
 }
