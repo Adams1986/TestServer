@@ -1,4 +1,5 @@
 package example;
+import com.google.gson.Gson;
 import com.sun.net.httpserver.HttpServer;
 import com.sun.jersey.api.container.httpserver.HttpServerFactory;
 import java.io.IOException;
@@ -15,34 +16,26 @@ import javax.ws.rs.core.Response;
 public class HelloWorld {
 
     private User user;
-    private ArrayList<User> users;
+    private SQLWrapper sqlWrapper = new SQLWrapper();
+    private ArrayList<User> users = sqlWrapper.getUsers();
 
     @Path("/user1")
     @GET
     @Produces("application/json")
     public String getUser(){
 
-        user = new User(1, "Simon", "Adams", "Adi", "12345");
-
-        users = new ArrayList<>();
-        users.add(user);
-
-        System.out.println(user.toJson());
+        user = users.get(0);
 
         return user.toJson();
     }
 
+    //Case sensitive for the username!
     @Path("/loginauthorization/{username}")
     @GET
     @Produces("application/json")
     public String authorizeLogin(@PathParam("username") String username){
 
-        user = new User(1, "Simon", "Adams", "Adi", "12345");
-
-        users = new ArrayList<>();
-        users.add(user);
-
-       User userAsJson = null;
+        User userAsJson = null;
 
         for (int i = 0; i < users.size(); i++) {
 
@@ -52,10 +45,49 @@ public class HelloWorld {
             }
 
         }
-        System.out.println(userAsJson);
+        //System.out.println(userAsJson);
         return userAsJson.toJson();
     }
 
+//    @Path("/update/{username}")
+//    @PUT
+//    @Produces("application/json")
+//    public Response updateUser(@PathParam("username") String username){
+//
+//        User updatedUser = null;
+//
+//        for(User u : users) {
+//            if (username.equals(u.getUsername())){
+//
+//                updatedUser = u;
+//                updatedUser.setPassword("1234");
+//                break;
+//            }
+//        }
+//        sqlWrapper.updateUser(updatedUser);
+//
+//        return Response.status(200).entity("User updated").build();
+//    }
+
+    @Path("/updateuser/")
+    @POST
+    @Consumes("application/json")
+    public Response updateUser(String jsonUser){
+
+        String decryptedUser = new Security().decrypt(jsonUser, "1");
+        User updatedUser = new Gson().fromJson(decryptedUser, User.class);
+
+        for(User u : users) {
+            if (updatedUser.getUsername().equals(u.getUsername())){
+
+                updatedUser = u;
+                break;
+            }
+        }
+        sqlWrapper.updateUser(updatedUser);
+
+        return Response.status(200).entity("User was updated").build();
+    }
 
     public static void main(String[] args) throws IOException {
         HttpServer server = HttpServerFactory.create("http://localhost:998/");
