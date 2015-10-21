@@ -56,4 +56,9 @@ public class SQLBuilder {
 
         return "INSERT INTO users (first_name, last_name, email, username, password) VALUES(?, ?, ?, ?, ?)";
     }
+
+    public String softDeleteSqlUser() {
+
+        return "UPDATE users SET status = 'deleted' WHERE username = ?";
+    }
 }

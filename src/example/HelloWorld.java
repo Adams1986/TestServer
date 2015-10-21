@@ -63,6 +63,19 @@ public class HelloWorld {
         return Response.status(200).entity("User was updated").build();
     }
 
+    @Path("/softdeleteuser")
+    @PUT
+    @Consumes("application/json")
+    public Response softDeleteUser(String jsonUser){
+
+        String decryptedUser = new Security().decrypt(jsonUser, "1");
+        User userToDelete = new Gson().fromJson(decryptedUser, User.class);
+
+        sqlWrapper.softDeleteUser(userToDelete);
+
+        return Response.status(200).entity("User was soft-deleted").build();
+    }
+
     public static void main(String[] args) throws IOException {
         HttpServer server = HttpServerFactory.create("http://localhost:998/");
         server.start();

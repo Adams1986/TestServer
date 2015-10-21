@@ -149,6 +149,21 @@ public class SQLWrapper {
         }
         return result;
     }
+
+    public void softDeleteUser(User user) {
+
+        int result = -1;
+
+        try {
+            PreparedStatement ps = connection.prepareStatement(sqlBuilder.softDeleteSqlUser());
+
+            ps.setString(1, user.getUsername());
+
+            result = ps.executeUpdate();
+        } catch (SQLException e){
+            e.printStackTrace();
+        }
+    }
 }
 
 
